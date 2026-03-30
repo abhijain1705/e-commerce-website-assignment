@@ -1,4 +1,6 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../auth/AuthContext";
 
 type Mode = "login" | "signup" | "forgot";
 
@@ -9,11 +11,74 @@ export default function LoginPage() {
     const [password, setPassword] = useState("");
     const [name, setName] = useState("");
     const [submitted, setSubmitted] = useState(false);
+    const [errorMsg, setErrorMsg] = useState<string | null>(null);
+    const [successMsg, setSuccessMsg] = useState<string | null>(null);
 
-    const handleSubmit = (e: React.MouseEvent) => {
+    const { loginWithEmail, signupWithEmail, forgotPassword } = useAuth();
+    const navigate = useNavigate();
+
+    const getErrorMessage = (error: any) => {
+        switch (error.code) {
+            case "auth/user-not-found":
+                return "No account found with this email.";
+            case "auth/invalid-credential":
+            case "auth/wrong-password":
+                return "Incorrect email or password.";
+            case "auth/email-already-in-use":
+                return "Email is already in use.";
+            case "auth/weak-password":
+                return "Password is too weak. Min 6 characters.";
+            case "auth/invalid-email":
+                return "Invalid email address.";
+            default:
+                return "An unexpected error occurred. Please try again.";
+        }
+    };
+
+    const handleModeSwitch = (newMode: Mode) => {
+        setMode(newMode);
+        setErrorMsg(null);
+        setSuccessMsg(null);
+    };
+
+    const handleSubmit = async (e: React.MouseEvent) => {
         e.preventDefault();
+        setErrorMsg(null);
+        setSuccessMsg(null);
         setSubmitted(true);
-        setTimeout(() => setSubmitted(false), 2000);
+
+        try {
+            if (mode === "login") {
+                await loginWithEmail(email, password);
+                setSuccessMsg("Welcome back!");
+                setTimeout(() => navigate("/"), 1000); // 1s delay to show success state
+            } else if (mode === "signup") {
+                if (password.length < 6) {
+                    setErrorMsg("Password is too weak. Min 6 characters.");
+                    setSubmitted(false);
+                    return;
+                }
+                await signupWithEmail(name, email, password);
+                setSuccessMsg("Account created!");
+                setTimeout(() => navigate("/"), 1000);
+            } else if (mode === "forgot") {
+                await forgotPassword(email);
+                setSuccessMsg("Reset link sent!");
+                // Keep the success state visible, reset form
+                setTimeout(() => {
+                    handleModeSwitch("login");
+                }, 2000);
+            }
+        } catch (err: any) {
+            setErrorMsg(getErrorMessage(err));
+        } finally {
+            if (mode === "forgot") {
+                setSubmitted(false);
+            } else {
+                // Keep loading state briefly before redirect
+                setTimeout(() => setSubmitted(false), 1000);
+            }
+        }
     };
 
     return (
@@ -95,44 +160,17 @@ export default function LoginPage() {
                                 Sign in to<br />your account
                             </h1>
 
-                            {/* Social logins */}
-                            <div className="flex gap-3 mb-6">
-                                {[
-                                    {
-                                        name: "Google",
-                                        icon: (
-                                            <svg className="w-4 h-4" viewBox="0 0 24 24">
-                                                <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
-                                                <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
-                                                <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
-                                                <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
-                                            </svg>
-                                        ),
-                                    },
-                                    {
-                                        name: "Apple",
-                                        icon: (
-                                            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                                                <path d="M12.017 0C8.396.029 8.025 3.613 8.025 3.613S6.04 3.355 4.67 4.98c-1.37 1.624-.93 4.395-.93 4.395S1.555 10.558 1 13.15c-.556 2.59.186 4.748 1.673 6.126 1.487 1.378 3.282 1.254 3.282 1.254s.557 2.16 2.29 2.967c1.733.806 3.41.218 3.41.218s.558.743 1.673.743c1.116 0 1.673-.743 1.673-.743s1.678.588 3.411-.218c1.733-.807 2.29-2.967 2.29-2.967s1.795.124 3.282-1.254C25.271 17.898 22.999 12 22.999 12S21.61 9.37 20.24 8.77c0 0 .44-2.771-.93-4.395C17.94 2.75 15.954 3.008 15.954 3.008S15.638.03 12.017 0zm-.543 5.77c-.31 1.485-1.34 2.645-2.605 2.645-1.265 0-2.295-1.16-2.605-2.645C6.264 5.77 6.264 5.77 6.264 5.77c1.265 0 2.295 1.16 2.605 2.645.31-1.485 1.34-2.645 2.605-2.645z" />
-                                            </svg>
-                                        ),
-                                    },
-                                ].map((provider) => (
-                                    <button
-                                        key={provider.name}
-                                        className="flex-1 flex items-center justify-center gap-2.5 border border-stone-200 py-3 text-xs tracking-wide text-stone-600 hover:bg-stone-50 hover:border-stone-300 transition-all duration-200"
-                                    >
-                                        {provider.icon}
-                                        {provider.name}
-                                    </button>
-                                ))}
-                            </div>
+                            {errorMsg && (
+                                <div className="mb-6 p-3 bg-rose-50 border border-rose-100 text-rose-600 text-[11px] tracking-wide font-medium rounded-sm">
+                                    {errorMsg}
+                                </div>
+                            )}
 
-                            <div className="flex items-center gap-3 mb-6">
-                                <div className="flex-1 h-px bg-stone-100" />
-                                <span className="text-[10px] tracking-[0.15em] uppercase text-stone-300">or</span>
-                                <div className="flex-1 h-px bg-stone-100" />
-                            </div>
+                            {successMsg && (
+                                <div className="mb-6 p-3 bg-emerald-50 border border-emerald-100 text-emerald-600 text-[11px] tracking-wide font-medium rounded-sm">
+                                    {successMsg}
+                                </div>
+                            )}
 
                             <div className="space-y-4">
                                 <FormField
@@ -183,7 +221,7 @@ export default function LoginPage() {
 
                             <p className="mt-6 text-center text-xs text-stone-400">
                                 Don't have an account?{" "}
-                                <button onClick={() => setMode("signup")} className="text-stone-700 font-medium underline underline-offset-2 hover:text-stone-900 transition-colors">
+                                <button onClick={() => handleModeSwitch("signup")} className="text-stone-700 font-medium underline underline-offset-2 hover:text-stone-900 transition-colors">
                                     Create one
                                 </button>
                             </p>
@@ -201,6 +239,18 @@ export default function LoginPage() {
                             >
                                 Create your<br />account
                             </h1>
+
+                            {errorMsg && (
+                                <div className="mb-6 p-3 bg-rose-50 border border-rose-100 text-rose-600 text-[11px] tracking-wide font-medium rounded-sm">
+                                    {errorMsg}
+                                </div>
+                            )}
+
+                            {successMsg && (
+                                <div className="mb-6 p-3 bg-emerald-50 border border-emerald-100 text-emerald-600 text-[11px] tracking-wide font-medium rounded-sm">
+                                    {successMsg}
+                                </div>
+                            )}
 
                             <div className="space-y-4">
                                 <FormField label="Full Name" type="text" value={name} onChange={setName} placeholder="Your name" />
@@ -259,7 +309,7 @@ export default function LoginPage() {
 
                             <p className="mt-6 text-center text-xs text-stone-400">
                                 Already have an account?{" "}
-                                <button onClick={() => setMode("login")} className="text-stone-700 font-medium underline underline-offset-2 hover:text-stone-900 transition-colors">
+                                <button onClick={() => handleModeSwitch("login")} className="text-stone-700 font-medium underline underline-offset-2 hover:text-stone-900 transition-colors">
                                     Sign in
                                 </button>
                             </p>
@@ -269,7 +319,7 @@ export default function LoginPage() {
                     {mode === "forgot" && (
                         <div>
                             <button
-                                onClick={() => setMode("login")}
+                                onClick={() => handleModeSwitch("login")}
                                 className="flex items-center gap-1.5 text-stone-400 hover:text-stone-700 text-xs tracking-wide mb-8 transition-colors group"
                             >
                                 <svg className="w-3.5 h-3.5 group-hover:-translate-x-0.5 transition-transform" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
@@ -290,6 +340,18 @@ export default function LoginPage() {
                             <p className="text-sm text-stone-400 mb-8 leading-relaxed">
                                 Enter your email and we'll send you a secure link to reset it.
                             </p>
+
+                            {errorMsg && (
+                                <div className="mb-6 p-3 bg-rose-50 border border-rose-100 text-rose-600 text-[11px] tracking-wide font-medium rounded-sm">
+                                    {errorMsg}
+                                </div>
+                            )}
+
+                            {successMsg && (
+                                <div className="mb-6 p-3 bg-emerald-50 border border-emerald-100 text-emerald-600 text-[11px] tracking-wide font-medium rounded-sm">
+                                    {successMsg}
+                                </div>
+                            )}
 
                             <FormField label="Email Address" type="email" value={email} onChange={setEmail} placeholder="you@example.com" />
 

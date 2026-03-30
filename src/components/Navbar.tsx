@@ -1,10 +1,13 @@
 import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
+import { useAuth } from "../auth/AuthContext";
 
 const navLinks = ["New In", "Women", "Men", "Accessories", "Sale"];
 
 export default function Navbar() {
     const [scrolled, setScrolled] = useState(false);
     const [menuOpen, setMenuOpen] = useState(false);
+    const { user, logout } = useAuth();
 
     useEffect(() => {
         const onScroll = () => setScrolled(window.scrollY > 20);
@@ -39,7 +42,7 @@ export default function Navbar() {
                             ))}
                         </nav>
                         <div className="flex-1 lg:flex-none flex justify-start lg:justify-center">
-                            <a href="#" className="group">
+                            <a href="/" className="group">
                                 <span
                                     className="text-2xl lg:text-3xl font-black tracking-[-0.04em] text-stone-900 select-none"
                                     style={{ fontFamily: "'Playfair Display', serif", letterSpacing: "-0.03em" }}
@@ -68,12 +71,28 @@ export default function Navbar() {
                                     <path d="M17 17l3.5 3.5" strokeLinecap="round" />
                                 </svg>
                             </button>
-                            <button className="hidden lg:block text-stone-500 hover:text-stone-900 transition-colors duration-200 p-1">
-                                <svg className="w-[18px] h-[18px]" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
-                                    <circle cx="12" cy="8" r="3.5" />
-                                    <path d="M4.5 20.5c0-4.14 3.36-7.5 7.5-7.5s7.5 3.36 7.5 7.5" strokeLinecap="round" />
-                                </svg>
-                            </button>
+
+                            {user ? (
+                                <div className="hidden lg:flex items-center gap-3">
+                                    <span className="text-[11px] tracking-wide text-stone-500 font-medium max-w-[120px] truncate">
+                                        {user.name || user.email}
+                                    </span>
+                                    <button
+                                        onClick={() => logout()}
+                                        className="text-[10px] tracking-[0.1em] uppercase text-stone-500 hover:text-stone-900 font-bold transition-colors"
+                                    >
+                                        Logout
+                                    </button>
+                                </div>
+                            ) : (
+                                <Link to="/login" className="hidden lg:block text-stone-500 hover:text-stone-900 transition-colors duration-200 p-1">
+                                    <svg className="w-[18px] h-[18px]" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+                                        <circle cx="12" cy="8" r="3.5" />
+                                        <path d="M4.5 20.5c0-4.14 3.36-7.5 7.5-7.5s7.5 3.36 7.5 7.5" strokeLinecap="round" />
+                                    </svg>
+                                </Link>
+                            )}
+
                             <button className="hidden lg:block text-stone-500 hover:text-stone-900 transition-colors duration-200 p-1">
                                 <svg className="w-[18px] h-[18px]" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
                                     <path d="M12 21C12 21 3.5 15 3.5 9a4.5 4.5 0 018.5-2.08A4.5 4.5 0 0120.5 9c0 6-8.5 12-8.5 12z" strokeLinecap="round" strokeLinejoin="round" />
