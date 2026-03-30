@@ -45,14 +45,14 @@ export default function ProductCard({ product }: ProductCardProps) {
                 <img
                     src={product.image}
                     alt={product.name}
-                    className={`absolute inset-0 w-full h-full object-cover transition-all duration-700 ${hovered && product.hoverImage ? "opacity-0 scale-105" : "opacity-100 scale-100"
+                    className={`absolute inset-0 w-full h-full object-contain transition-all duration-700 ${hovered && product.hoverImage ? "opacity-0 scale-105" : "opacity-100 scale-100"
                         }`}
                 />
                 {product.hoverImage && (
                     <img
                         src={product.hoverImage}
                         alt={product.name + " alternate"}
-                        className={`absolute inset-0 w-full h-full object-cover transition-all duration-700 ${hovered ? "opacity-100 scale-100" : "opacity-0 scale-105"
+                        className={`absolute inset-0 w-full h-full object-contain transition-all duration-700 ${hovered ? "opacity-100 scale-100" : "opacity-0 scale-105"
                             }`}
                     />
                 )}
