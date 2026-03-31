@@ -5,7 +5,7 @@ import { getAllProducts } from "../apis/getAllProduct";
 import { useSearchParams } from "react-router-dom";
 
 
-type GridSize = 2 | 3 | 4;
+export type GridSize = 2 | 3 | 4;
 
 export interface FilterState {
     categories: string[];
@@ -54,20 +54,9 @@ export default function HomePage() {
     }, []);
 
     const filteredProducts = useMemo(() => {
-        let list: Product[] = products.map((p: any) => ({
-            id: p.id,
-            name: p.title,
-            brand: p.category,
-            price: p.price,
-            image: p.image,
-            colors: [],
-            rating: p.rating?.rate || 0,
-            reviews: p.rating?.count || 0,
-            isNew: false,
-        }));
 
-        list = list.filter((p) => {
-            if (filters.categories.length && !filters.categories.includes(p.brand)) return false;
+        let list = products.filter((p) => {
+            if (filters.categories.length && !filters.categories.includes(p.category)) return false;
             if (p.price < filters.priceRange[0] || p.price > filters.priceRange[1]) return false;
             return true;
         });
@@ -98,6 +87,11 @@ export default function HomePage() {
         4: "grid-cols-2 md:grid-cols-3 lg:grid-cols-4",
     };
 
+    function clearFilters() {
+        setFilters({ categories: [], sizes: [], priceRange: [0, 50000] })
+        setSearchParams({})
+    }
+
     if (loading) {
         return (
             <div className="min-h-screen flex items-center justify-center">
@@ -117,21 +111,7 @@ export default function HomePage() {
     return (
         <div className="min-h-screen bg-white" style={{ fontFamily: "'DM Sans', sans-serif" }}>
             <section className="relative overflow-hidden bg-stone-50">
-                <div className="max-w-screen-xl mx-auto px-6 lg:px-10 py-16 lg:py-24 flex flex-col lg:flex-row items-center gap-10">
-                    <div className="flex-1 lg:max-w-lg">
-                        <p className="text-[10px] tracking-[0.3em] uppercase text-stone-400 font-medium mb-4">
-                            Spring / Summer 2025
-                        </p>
-                        <h1 className="text-5xl lg:text-7xl font-black leading-[0.95] text-stone-900 mb-6">
-                            Dress<br />
-                            <span className="italic font-normal">your</span><br />
-                            Truth.
-                        </h1>
-                        <p className="text-stone-500 text-sm leading-relaxed mb-8 max-w-sm">
-                            Thoughtfully curated fashion for the modern wardrobe.
-                        </p>
-                    </div>
-                </div>
+                <img alt="banner" src='/banner.png' />
             </section>
 
             <section className="border-y border-stone-100">
@@ -184,7 +164,7 @@ export default function HomePage() {
                                 </span>
                                 {activeFilterCount > 0 && (
                                     <button
-                                        onClick={() => setFilters({ categories: [], sizes: [], priceRange: [0, 50000] })}
+                                        onClick={() => clearFilters()}
                                         className="text-[10px] text-stone-400 hover:text-stone-700 underline underline-offset-2 transition-colors"
                                     >
                                         Clear filters

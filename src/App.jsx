@@ -6,14 +6,19 @@ import Footer from './components/Footer'
 import LoginPage from './pages/Login'
 import ProductDetailPage from './pages/ProductDetail'
 import { AuthProvider, useAuth } from './auth/AuthContext'
-import ProtectedRoute from './auth/ProtectedRoute'
+import CartPage from './pages/CartPage'
+import { CartProvider } from './cart/CartContext'
+import WIPPage from './pages/WIPPage'
+import ProtectedRoute from "./auth/ProtectedRoute"
 
 function App() {
 
   return (
     <BrowserRouter>
       <AuthProvider>
-        <RouteWrapper />
+        <CartProvider>
+          <RouteWrapper />
+        </CartProvider>
       </AuthProvider>
     </BrowserRouter>
   )
@@ -33,12 +38,20 @@ const RouteWrapper = () => {
       <Navbar />
       <Routes>
         <Route path='/' element={<HomePage />} />
-        <Route path='/login' element={user ? <Navigate to="/" /> : <LoginPage />} />
         <Route
           path='/product/:productId'
+          element={<ProductDetailPage />}
+        />
+        <Route path='/work-in-progress' element={<WIPPage />} />
+        <Route
+          path='/login'
+          element={user ? <Navigate to="/" replace /> : <LoginPage />}
+        />
+        <Route
+          path='/mycart'
           element={
             <ProtectedRoute>
-              <ProductDetailPage />
+              <CartPage />
             </ProtectedRoute>
           }
         />

@@ -1,18 +1,17 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useCart } from "../cart/CartContext";
 
 export interface Product {
     id: number;
-    name: string;
-    brand: string;
+    title: string;
     price: number;
-    originalPrice?: number;
+    description: string;
+    category: string;
     image: string;
-    hoverImage?: string;
-    tag?: string;
-    colors: string[];
-    rating: number;
-    reviews: number;
-    isNew?: boolean;
+    rating: {
+        rate: number;
+        count: number;
+    }
 }
 
 interface ProductCardProps {
@@ -22,18 +21,22 @@ interface ProductCardProps {
 export default function ProductCard({ product }: ProductCardProps) {
     const [hovered, setHovered] = useState(false);
     const [wishlisted, setWishlisted] = useState(false);
-    const [selectedColor, setSelectedColor] = useState(0);
     const [addedToCart, setAddedToCart] = useState(false);
 
-    const discount = product.originalPrice
-        ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)
-        : null;
+    const { cartItems, addToCart } = useCart();
 
     const handleAddToCart = (e: React.MouseEvent) => {
         e.preventDefault();
+        addToCart(product);
         setAddedToCart(true);
         setTimeout(() => setAddedToCart(false), 1800);
     };
+
+    useEffect(() => {
+        if (cartItems.find((item) => item.id === product.id)) {
+            setAddedToCart(true);
+        }
+    }, [cartItems])
 
     return (
         <div
@@ -44,35 +47,9 @@ export default function ProductCard({ product }: ProductCardProps) {
             <div className="relative overflow-hidden bg-stone-50 aspect-[3/4]">
                 <img
                     src={product.image}
-                    alt={product.name}
-                    className={`absolute inset-0 w-full h-full object-contain transition-all duration-700 ${hovered && product.hoverImage ? "opacity-0 scale-105" : "opacity-100 scale-100"
-                        }`}
+                    alt={product.title}
+                    className={`absolute inset-0 w-full h-full object-contain transition-all duration-700`}
                 />
-                {product.hoverImage && (
-                    <img
-                        src={product.hoverImage}
-                        alt={product.name + " alternate"}
-                        className={`absolute inset-0 w-full h-full object-contain transition-all duration-700 ${hovered ? "opacity-100 scale-100" : "opacity-0 scale-105"
-                            }`}
-                    />
-                )}
-                <div className="absolute top-3 left-3 flex flex-col gap-1.5">
-                    {product.isNew && (
-                        <span className="bg-stone-900 text-white text-[9px] tracking-[0.2em] uppercase font-semibold px-2.5 py-1">
-                            New
-                        </span>
-                    )}
-                    {product.tag && (
-                        <span className="bg-rose-600 text-white text-[9px] tracking-[0.2em] uppercase font-semibold px-2.5 py-1">
-                            {product.tag}
-                        </span>
-                    )}
-                    {discount && (
-                        <span className="bg-emerald-600 text-white text-[9px] tracking-[0.15em] uppercase font-semibold px-2.5 py-1">
-                            -{discount}%
-                        </span>
-                    )}
-                </div>
                 <button
                     onClick={(e) => { e.preventDefault(); setWishlisted(!wishlisted); }}
                     className={`absolute top-3 right-3 w-8 h-8 flex items-center justify-center transition-all duration-200 ${hovered ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-1"
@@ -107,10 +84,10 @@ export default function ProductCard({ product }: ProductCardProps) {
                 <div className="flex items-start justify-between gap-2 mb-1">
                     <div className="flex-1 min-w-0">
                         <p className="text-[10px] tracking-[0.18em] uppercase text-stone-400 font-medium mb-0.5">
-                            {product.brand}
+                            {product.category}
                         </p>
                         <h3 className="text-sm text-stone-800 font-medium leading-snug truncate">
-                            {product.name}
+                            {product.title}
                         </h3>
                     </div>
                 </div>
@@ -120,7 +97,7 @@ export default function ProductCard({ product }: ProductCardProps) {
                         {[1, 2, 3, 4, 5].map((star) => (
                             <svg
                                 key={star}
-                                className={`w-2.5 h-2.5 ${star <= Math.round(product.rating) ? "text-amber-400" : "text-stone-200"}`}
+                                className={`w-2.5 h-2.5 ${star <= Math.round(product.rating.rate) ? "text-amber-400" : "text-stone-200"}`}
                                 fill="currentColor"
                                 viewBox="0 0 20 20"
                             >
@@ -128,34 +105,13 @@ export default function ProductCard({ product }: ProductCardProps) {
                             </svg>
                         ))}
                     </div>
-                    <span className="text-[10px] text-stone-400">({product.reviews})</span>
                 </div>
 
                 <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
                         <span className="text-sm font-semibold text-stone-900">
-                            ₹{product.price.toLocaleString()}
+                            ₹{product.price}
                         </span>
-                        {product.originalPrice && (
-                            <span className="text-xs text-stone-400 line-through">
-                                ₹{product.originalPrice.toLocaleString()}
-                            </span>
-                        )}
-                    </div>
-                    <div className="flex gap-1">
-                        {product.colors.slice(0, 4).map((color, i) => (
-                            <button
-                                key={i}
-                                onClick={(e) => { e.preventDefault(); setSelectedColor(i); }}
-                                className={`w-3.5 h-3.5 rounded-full border transition-all duration-150 ${selectedColor === i ? "border-stone-700 scale-110" : "border-stone-200"
-                                    }`}
-                                style={{ backgroundColor: color }}
-                                title={color}
-                            />
-                        ))}
-                        {product.colors.length > 4 && (
-                            <span className="text-[9px] text-stone-400 self-center ml-0.5">+{product.colors.length - 4}</span>
-                        )}
                     </div>
                 </div>
             </div>
