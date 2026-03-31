@@ -1,13 +1,12 @@
-import { useState, useMemo, useEffect } from "react";
+import { useState, useEffect } from "react";
 import FilterTray from "../components/FilterTray";
-import ProductCard, { Product } from "../components/ProductCard";
-import { getAllProducts } from "../apis/getAllProduct";
+import ProductCard from "../components/ProductCard";
+import { getProducts } from "../apis/getAllProduct";
 import { useSearchParams } from "react-router-dom";
-
 
 export type GridSize = 2 | 3 | 4;
 
-export interface FilterState {
+export type FilterState = {
     categories: string[];
     sizes: string[];
     priceRange: [number, number];
@@ -19,67 +18,46 @@ export default function HomePage() {
 
     const [searchParams, setSearchParams] = useSearchParams();
 
-    const [sortBy, setSortBy] = useState(
-        searchParams.get("sort") || "featured"
-    );
-    const [filters, setFilters] = useState<FilterState>({
-        categories: searchParams.get("categories")?.split(",") || [],
-        sizes: searchParams.get("sizes")?.split(",") || [],
-        priceRange: searchParams.get("priceRange")
-            ? (searchParams.get("priceRange")!.split(",").map(Number) as [number, number])
-            : [0, 50000],
-    });
+    const category = searchParams.get("categories") || "";
+    const sort = searchParams.get("sort") || "asc";
 
     const [products, setProducts] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+
+    const priceParam = searchParams.get("priceRange");
+
+    const priceRange: [number, number] = priceParam
+        ? (() => {
+            const parts = priceParam.split(",").map(Number);
+            return [
+                parts[0] ?? 0,
+                parts[1] ?? 50000
+            ];
+        })()
+        : [0, 50000];
 
     useEffect(() => {
         const fetchProducts = async () => {
             setLoading(true);
             setError(null);
 
-            const res = await getAllProducts();
+            const res = await getProducts({
+                category: category || undefined,
+            });
 
             if (res.status === "ok") {
                 setProducts(res.data);
             } else {
-                setError(res?.error ?? null);
+                setError(res.error);
             }
 
             setLoading(false);
         };
 
         fetchProducts();
-    }, []);
+    }, [category]);
 
-    const filteredProducts = useMemo(() => {
-
-        let list = products.filter((p) => {
-            if (filters.categories.length && !filters.categories.includes(p.category)) return false;
-            if (p.price < filters.priceRange[0] || p.price > filters.priceRange[1]) return false;
-            return true;
-        });
-
-        switch (sortBy) {
-            case "price-asc":
-                list = [...list].sort((a, b) => a.price - b.price);
-                break;
-            case "price-desc":
-                list = [...list].sort((a, b) => b.price - a.price);
-                break;
-            case "rating":
-                list = [...list].sort((a, b) => b.rating - a.rating);
-                break;
-            case "popular":
-                list = [...list].sort((a, b) => b.reviews - a.reviews);
-                break;
-        }
-
-        return list;
-    }, [products, filters, searchParams, sortBy]);
-
-    const activeFilterCount = filters.categories.length + filters.sizes.length + filters.priceRange.length;
 
     const gridCols: Record<GridSize, string> = {
         2: "grid-cols-2",
@@ -87,23 +65,27 @@ export default function HomePage() {
         4: "grid-cols-2 md:grid-cols-3 lg:grid-cols-4",
     };
 
+    const finalProducts = [...products]
+        .filter((p) => {
+            return (
+                p.price >= priceRange[0] &&
+                p.price <= priceRange[1]
+            );
+        })
+        .sort((a, b) => {
+            if (sort === "price-asc") return a.price - b.price;
+            if (sort === "price-desc") return b.price - a.price;
+            return 0;
+        });
+
     function clearFilters() {
-        setFilters({ categories: [], sizes: [], priceRange: [0, 50000] })
-        setSearchParams({})
+        setSearchParams({});
     }
 
     if (loading) {
         return (
             <div className="min-h-screen flex items-center justify-center">
-                <p className="text-stone-500 text-sm tracking-wide">Loading products...</p>
-            </div>
-        );
-    }
-
-    if (error) {
-        return (
-            <div className="min-h-screen flex items-center justify-center">
-                <p className="text-red-500 text-sm">{error}</p>
+                <p className="text-stone-500 text-sm">Loading products...</p>
             </div>
         );
     }
@@ -111,21 +93,21 @@ export default function HomePage() {
     return (
         <div className="min-h-screen bg-white" style={{ fontFamily: "'DM Sans', sans-serif" }}>
             <section className="relative overflow-hidden bg-stone-50">
-                <img alt="banner" src='/banner.png' />
+                <img alt="banner" src="/banner.png" />
             </section>
-
             <section className="border-y border-stone-100">
-                <div className="max-w-screen-xl mx-auto px-6 lg:px-10 py-5">
+                <div className="max-w-screen-xl mx-auto px-6 py-5">
                     <div className="flex gap-6 overflow-x-auto">
                         {["All", "electronics", "jewelery", "men's clothing", "women's clothing"].map((cat) => (
                             <button
                                 key={cat}
-                                onClick={() =>
-                                    setFilters((f) => ({
-                                        ...f,
-                                        categories: cat === "All" ? [] : [cat],
-                                    }))
-                                }
+                                onClick={() => {
+                                    setSearchParams((prev) => {
+                                        if (cat === "All") prev.delete("categories");
+                                        else prev.set("categories", cat);
+                                        return prev;
+                                    });
+                                }}
                                 className="text-[11px] uppercase"
                             >
                                 {cat}
@@ -135,71 +117,58 @@ export default function HomePage() {
                 </div>
             </section>
 
-            <main className="max-w-screen-xl mx-auto px-6 lg:px-10 py-10">
-                <div className="flex gap-8 lg:gap-10">
+            <main className="max-w-screen-xl mx-auto px-6 py-10">
+                <div className="flex gap-8">
+
                     <FilterTray
                         isOpen={filterOpen}
                         onClose={() => setFilterOpen(false)}
-                        filters={filters}
-                        onFilterChange={setFilters}
-                        productCount={filteredProducts.length}
-                        sortBy={sortBy}
-                        onSortChange={setSortBy}
+                        filters={{ categories: category ? [category] : [], sizes: [], priceRange: [0, 50000] }}
+                        onFilterChange={() => { }}
+                        productCount={products.length}
+                        sortBy={sort}
+                        onSortChange={() => { }}
                     />
-                    <div className="flex-1 min-w-0">
 
-                        <div className="flex items-center justify-between mb-6 gap-4">
-                            <div className="flex items-center gap-3">
+                    <div className="flex-1">
+
+                        <div className="flex justify-between mb-6">
+                            <span className="text-stone-400 text-xs">
+                                {products.length} items
+                            </span>
+
+                            <div className="flex items-center gap-2">
                                 <button
-                                    onClick={() => setFilterOpen(true)}
-                                    className="lg:hidden flex items-center gap-2 border border-stone-300 text-stone-600 text-[11px] tracking-[0.15em] uppercase font-medium px-3.5 py-2.5 hover:border-stone-500 transition-colors"
+                                    onClick={clearFilters}
+                                    className="text-xs underline"
                                 >
-                                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
-                                        <path d="M3 6h18M7 12h10M11 18h2" strokeLinecap="round" />
-                                    </svg>
-                                    Filter {activeFilterCount > 0 && <span className="text-rose-500">({activeFilterCount})</span>}
+                                    Clear filters
                                 </button>
-                                <span className="text-stone-400 text-xs">
-                                    {filteredProducts.length} items
-                                </span>
-                                {activeFilterCount > 0 && (
-                                    <button
-                                        onClick={() => clearFilters()}
-                                        className="text-[10px] text-stone-400 hover:text-stone-700 underline underline-offset-2 transition-colors"
-                                    >
-                                        Clear filters
-                                    </button>
-                                )}
-                            </div>
-
-                            <div className="flex items-center gap-3">
-                                <div className="hidden sm:flex gap-1 border border-stone-200 p-0.5">
-                                    {([2, 3, 4] as GridSize[]).map((size) => (
-                                        <button
-                                            key={size}
-                                            onClick={() => setGridSize(size)}
-                                            className={`px-2.5 py-1.5 transition-all ${gridSize === size ? "bg-stone-900 text-white" : "text-stone-400 hover:text-stone-600"}`}
-                                        >
-                                            <div className={`grid gap-[3px] ${size === 2 ? "grid-cols-2" : size === 3 ? "grid-cols-3" : "grid-cols-4"}`}>
-                                                {Array.from({ length: size }).map((_, i) => (
-                                                    <div key={i} className={`w-[3px] h-3.5 rounded-sm ${gridSize === size ? "bg-white" : "bg-stone-400"}`} />
-                                                ))}
-                                            </div>
-                                        </button>
-                                    ))}
+                                <div className="flex items-center gap-3 m-6">
+                                    <div className="hidden sm:flex gap-1 border border-stone-200 p-0.5">
+                                        {([2, 3, 4] as GridSize[]).map((size) => (
+                                            <button
+                                                key={size}
+                                                onClick={() => setGridSize(size)}
+                                                className={`px-2.5 py-1.5 transition-all ${gridSize === size ? "bg-stone-900 text-white" : "text-stone-400 hover:text-stone-600"}`}
+                                            >
+                                                <div className={`grid gap-[3px] ${size === 2 ? "grid-cols-2" : size === 3 ? "grid-cols-3" : "grid-cols-4"}`}>
+                                                    {Array.from({ length: size }).map((_, i) => (
+                                                        <div key={i} className={`w-[3px] h-3.5 rounded-sm ${gridSize === size ? "bg-white" : "bg-stone-400"}`} />
+                                                    ))}
+                                                </div>
+                                            </button>
+                                        ))}
+                                    </div>
                                 </div>
                             </div>
                         </div>
 
-                        <div className={`grid ${gridCols[gridSize]} gap-x-4 gap-y-10`}>
-                            {filteredProducts.map((product) => (
+                        {error ? <div className="text-center text-red-500">{error}</div> : <div className={`grid ${gridCols[gridSize]} gap-6`}>
+                            {finalProducts.map((product) => (
                                 <ProductCard key={product.id} product={product} />
                             ))}
-                        </div>
-
-                        <div className="mt-10 text-center text-xs text-stone-400">
-                            Showing {filteredProducts.length} of {products.length} items
-                        </div>
+                        </div>}
                     </div>
                 </div>
             </main>
