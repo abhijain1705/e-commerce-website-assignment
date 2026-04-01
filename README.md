@@ -63,4 +63,4 @@ VITE_PRODUCT_API=""
 ```
 
 ### Meet the Founder
-[https://github.com/abhijain1705](Abhi Jain)
+(https://github.com/abhijain1705)[Abhi Jain]
