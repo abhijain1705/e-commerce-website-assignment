@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useCart } from "../cart/CartContext";
 import { Link } from "react-router-dom";
+import { useAuth } from "../auth/AuthContext";
 
 export type Product = {
     id: number;
@@ -29,7 +30,13 @@ export default function ProductCard({ product, insideCartPage }: ProductCardProp
 
     const { cartItems, removeFromCart, addToCart } = useCart();
 
+    const { user } = useAuth();
+
     const handleAddToCart = (e: React.MouseEvent) => {
+        if (!user) {
+            alert("Please login to add items to cart");
+            return;
+        }
         e.preventDefault();
         e.stopPropagation();
         addToCart(product);

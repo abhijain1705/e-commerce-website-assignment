@@ -3,6 +3,7 @@ import { useParams, Link } from "react-router-dom";
 import { Product } from "../components/ProductCard";
 import { getProductById } from "../apis/getAllProduct";
 import { useCart } from "../cart/CartContext";
+import { useAuth } from "../auth/AuthContext";
 
 export default function ProductDetailPage() {
     const { productId } = useParams<{ productId: string }>();
@@ -14,6 +15,8 @@ export default function ProductDetailPage() {
     const [wishlist, setWishlist] = useState(false);
     const [addedToBag, setAddedToBag] = useState(false);
     const [zoom, setZoom] = useState(false);
+
+    const { user } = useAuth();
 
     const { addToCart, cartItems } = useCart();
 
@@ -49,6 +52,10 @@ export default function ProductDetailPage() {
     }, [cartItems, product]);
 
     const handleAddToBag = () => {
+        if (!user) {
+            alert("Please login to add items to cart");
+            return;
+        }
         if (product) {
             addToCart(product);
         }
