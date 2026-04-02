@@ -94,7 +94,7 @@ export default function HomePage() {
     }
 
     return (
-        <div className="min-h-screen bg-white" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+        <div className="min-h-screen bg-white">
             <section className="relative overflow-hidden bg-stone-50">
                 <img alt="banner" src="/banner.png" />
             </section>

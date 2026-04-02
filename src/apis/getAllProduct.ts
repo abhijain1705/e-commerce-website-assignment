@@ -1,4 +1,4 @@
-const BASE = "https://api.escuelajs.co/api/v1";
+const BASE = import.meta.env.VITE_PRODUCT_API;
 
 export interface GetProductsParams {
     title?: string;
