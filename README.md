@@ -17,6 +17,18 @@ This is ecommerce website i am building as part of assignment.
 3. Fake APIs do have cart management api, but since there is no linkage between user i am logged in and cart apis of fake APIs i couldn't implement them, so i built at client level using react context api, storing cart information in local storage.
 4. Pagination was not supported by api as it only allow limit params but not skip or page.
 5. Suddenly 31st March evening fake store api stopped working with 523 origin not found error.
+6. Team replaced new endpoint with https://api.escuelajs.co/api/v1, which is working fine.
+
+## API
+
+```
+[GET] https://api.escuelajs.co/api/v1/products
+[GET] https://api.escuelajs.co/api/v1/products?title=something
+[GET] https://api.escuelajs.co/api/v1/products?price_min=100&price_max=200
+[GET] https://api.escuelajs.co/api/v1/products?categoryId=1
+[GET] https://api.escuelajs.co/api/v1/products?categorySlug=electronics
+[GET] https://api.escuelajs.co/api/v1/products?offset=0&limit=10
+```
 
 ### Setup
 
@@ -63,4 +75,4 @@ VITE_PRODUCT_API=""
 ```
 
 ### Meet the Founder
-(https://github.com/abhijain1705)[Abhi Jain]
+[Abhi Jain](https://github.com/abhijain1705)

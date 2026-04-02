@@ -10,6 +10,7 @@ import CartPage from './pages/CartPage'
 import { CartProvider } from './cart/CartContext'
 import WIPPage from './pages/WIPPage'
 import ProtectedRoute from "./auth/ProtectedRoute"
+import CheckoutPage from './pages/CheckoutPage'
 
 function App() {
 
@@ -47,6 +48,10 @@ const RouteWrapper = () => {
           path='/login'
           element={user ? <Navigate to="/" replace /> : <LoginPage />}
         />
+        <Route path='/checkout' element={
+          <ProtectedRoute>
+            <CheckoutPage />
+          </ProtectedRoute>} />
         <Route
           path='/mycart'
           element={

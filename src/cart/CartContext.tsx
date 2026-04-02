@@ -40,10 +40,10 @@ export function CartProvider({ children }: { children: ReactNode }) {
     function removeFromCart(productId: number) {
         const savedCart = localStorage.getItem("cart");
         const parsedCart: Product[] = savedCart ? JSON.parse(savedCart) : [];
-        parsedCart.filter((item) => item.id !== productId);
-        localStorage.setItem("cart", JSON.stringify(parsedCart));
-        setCartCount(parsedCart.length);
-        setCartTotal(parsedCart.reduce((total, item) => total + item.price, 0));
+        const updatedCart = parsedCart.filter((item) => item.id !== productId);
+        localStorage.setItem("cart", JSON.stringify(updatedCart));
+        setCartCount(updatedCart.length);
+        setCartTotal(updatedCart.reduce((total, item) => total + item.price, 0));
         setCartItems((prevCart) => prevCart.filter((item) => item.id !== productId));
     }
 

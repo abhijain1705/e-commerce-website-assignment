@@ -1,28 +1,59 @@
-// /apis/getAllProduct.ts
+const BASE = "https://api.escuelajs.co/api/v1";
 
-const BASE = import.meta.env.VITE_PRODUCT_API;
+export interface GetProductsParams {
+    title?: string;
+    price_min?: number;
+    price_max?: number;
+    categoryId?: number;
+    categorySlug?: string;
+    offset?: number;
+    limit?: number;
+}
 
-export const getProducts = async ({
-    category,
-    sort = "asc",
-}: {
-    category?: string;
-    sort?: "asc" | "desc";
-}) => {
+export const getProducts = async (params: GetProductsParams = {}) => {
     try {
-        let url = `${BASE}/products`;
+        const urlParams = new URLSearchParams();
+        Object.entries(params).forEach(([key, value]) => {
+            if (value !== undefined && value !== "") {
+                urlParams.append(key, String(value));
+            }
+        });
 
-        if (category && category !== "All") {
-            url = `${BASE}/products/category/${category}`;
-        }
+        const qs = urlParams.toString();
+        const url = `${BASE}/products${qs ? `?${qs}` : ''}`;
 
-        const params = new URLSearchParams();
-
-        if (sort) params.set("sort", sort);
-
-        const response = await fetch(`${url}?${params.toString()}`);
+        const response = await fetch(url);
         const data = await response.json();
 
+        return { status: "ok", data, error: null };
+    } catch (error: any) {
+        return {
+            status: "not-ok",
+            data: null,
+            error: error?.message ?? "Something went wrong",
+        };
+    }
+};
+
+export const getCategories = async () => {
+    try {
+        const response = await fetch(`${BASE}/categories`);
+        const data = await response.json();
+        return { status: "ok", data, error: null };
+    } catch (error: any) {
+        return {
+            status: "not-ok",
+            data: null,
+            error: error?.message ?? "Something went wrong",
+        };
+    }
+};
+
+export const getProductById = async (id: string | number) => {
+    try {
+        const response = await fetch(`${BASE}/products/${id}`);
+        if (!response.ok) throw new Error("Product not found");
+        const data = await response.json();
         return { status: "ok", data, error: null };
     } catch (error: any) {
         return {
