@@ -68,7 +68,7 @@ export default function ProductCard({ product, insideCartPage }: ProductCardProp
             onMouseEnter={() => setHovered(true)}
             onMouseLeave={() => setHovered(false)}
         >
-            <div className="relative overflow-hidden bg-stone-50 aspect-[3/4]">
+            <div data-testid="product-card" className="relative overflow-hidden bg-stone-50 aspect-[3/4]">
                 <img
                     src={imageUrl}
                     alt={product.title}
@@ -89,11 +89,35 @@ export default function ProductCard({ product, insideCartPage }: ProductCardProp
                         <path d="M12 21C12 21 3.5 15 3.5 9a4.5 4.5 0 018.5-2.08A4.5 4.5 0 0120.5 9c0 6-8.5 12-8.5 12z" strokeLinecap="round" strokeLinejoin="round" />
                     </svg>
                 </button>
-                <div
+                <div className="absolute bottom-0 left-0 right-0">
+                    <button
+                        data-testid="cart-action"
+                        data-action={insideCartPage ? "remove" : "add"}
+                        onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            insideCartPage
+                                ? removeFromCart(product.id)
+                                : handleAddToCart(e);
+                        }}
+                        className={`w-full py-3.5 text-[10px] tracking-[0.2em] uppercase font-semibold transition-all duration-300 ${addedToCart
+                                ? "bg-stone-700 text-white"
+                                : "bg-white/95 backdrop-blur-sm text-stone-900 hover:bg-stone-900 hover:text-white"
+                            }`}
+                    >
+                        {insideCartPage
+                            ? "Remove from Bag"
+                            : addedToCart
+                                ? "✓ Added to Bag"
+                                : "Quick Add"}
+                    </button>
+                </div>
+                {/* <div
                     className={`absolute bottom-0 left-0 right-0 transition-all duration-300 ${hovered ? "opacity-100 translate-y-0" : "opacity-0 translate-y-2"
                         }`}
                 >
-                    <button
+                    <button data-testid="cart-action"
+                        data-action={insideCartPage ? "remove" : "add"}
                         onClick={(e) => { e.preventDefault(); e.stopPropagation(); insideCartPage ? removeFromCart(product.id) : handleAddToCart(e); }}
                         className={`w-full py-3.5 text-[10px] tracking-[0.2em] uppercase font-semibold transition-all duration-300 ${addedToCart
                             ? "bg-stone-700 text-white"
@@ -102,7 +126,7 @@ export default function ProductCard({ product, insideCartPage }: ProductCardProp
                     >
                         {insideCartPage ? "Remove from Bag" : addedToCart ? "✓ Added to Bag" : "Quick Add"}
                     </button>
-                </div>
+                </div> */}
             </div>
             <div className="pt-3.5 pb-1">
                 <div className="flex items-start justify-between gap-2 mb-1">
@@ -110,7 +134,7 @@ export default function ProductCard({ product, insideCartPage }: ProductCardProp
                         <p className="text-[10px] tracking-[0.18em] uppercase text-stone-400 font-medium mb-0.5">
                             {product.category?.name || "Category"}
                         </p>
-                        <h3 className="text-sm text-stone-800 font-medium leading-snug truncate">
+                        <h3 data-testid="product-title" className="text-sm text-stone-800 font-medium leading-snug truncate">
                             {product.title}
                         </h3>
                     </div>
@@ -118,7 +142,7 @@ export default function ProductCard({ product, insideCartPage }: ProductCardProp
 
                 <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                        <span className="text-sm font-semibold text-stone-900">
+                        <span data-testid="product-price" className="text-sm font-semibold text-stone-900">
                             ₹{product.price}
                         </span>
                     </div>

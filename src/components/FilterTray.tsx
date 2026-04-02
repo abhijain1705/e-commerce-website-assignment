@@ -118,7 +118,7 @@ export default function FilterTray({
 
                     <AccordionSection title="Sort By" defaultOpen>
                         {SORT_OPTIONS.map((opt) => (
-                            <button
+                            <button data-testid="sort-filter"
                                 key={opt.value}
                                 onClick={() => applySorting(opt.value)}
                                 className={`block text-xs py-2 w-full text-left ${sortBy === opt.value ? "font-semibold text-stone-900" : "text-stone-500 hover:text-stone-700"}`}
@@ -136,7 +136,7 @@ export default function FilterTray({
                             All Categories
                         </button>
                         {categories.map((cat) => (
-                            <button
+                            <button data-testid="category-filter"
                                 key={cat.id}
                                 onClick={() => applyCategory(String(cat.id))}
                                 className={`block text-xs py-2 w-full text-left ${filters.categorySlug === String(cat.id)
@@ -154,7 +154,7 @@ export default function FilterTray({
                             <div>
                                 <label className="text-[10px] text-stone-400 uppercase mb-1 block">Min Price</label>
                                 <input
-                                    type="number"
+                                    type="number" data-testid="price-min"
                                     placeholder="0"
                                     value={filters.priceRange[0]}
                                     onChange={(e) =>
@@ -167,7 +167,7 @@ export default function FilterTray({
                                 <label className="text-[10px] text-stone-400 uppercase mb-1 block">Max Price</label>
                                 <input
                                     type="number"
-                                    placeholder="50000"
+                                    placeholder="50000" data-testid="price-max"
                                     value={filters.priceRange[1]}
                                     onChange={(e) =>
                                         applyPrice([filters.priceRange[0], +e.target.value])

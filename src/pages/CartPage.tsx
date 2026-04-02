@@ -49,7 +49,7 @@ const CartPage = () => {
                     </div>
                 </div>
             </div>
-            {cartItems.length === 0 ? <div
+            {cartItems.length === 0 ? <div data-testid="empty-cart"
                 className="min-h-screen bg-white flex flex-col justify-center items-center px-6 text-center"
             >
                 <p className="text-[10px] tracking-[0.3em] uppercase text-stone-400 font-medium mb-4">
@@ -85,7 +85,9 @@ const CartPage = () => {
                 </p>
             </div> : <div className={`grid ${gridCols[gridSize]} gap-x-4 gap-y-10`}>
                 {cartItems.map((product) => (
-                    <ProductCard key={product.id} insideCartPage={true} product={product} />
+                    <div key={product.id} data-testid="cart-item">
+                        <ProductCard insideCartPage={true} product={product} />
+                    </div>
                 ))}
             </div>}
 

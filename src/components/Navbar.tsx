@@ -61,14 +61,14 @@ export default function Navbar() {
                                     </button>
                                 </div>
                             ) : (
-                                <Link to="/login" className="hidden lg:block text-stone-500 hover:text-stone-900 transition-colors duration-200 p-1">
+                                <Link to="/login" data-testid="login-button" className="hidden lg:block text-stone-500 hover:text-stone-900 transition-colors duration-200 p-1">
                                     <svg className="w-[18px] h-[18px]" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
                                         <circle cx="12" cy="8" r="3.5" />
                                         <path d="M4.5 20.5c0-4.14 3.36-7.5 7.5-7.5s7.5 3.36 7.5 7.5" strokeLinecap="round" />
                                     </svg>
                                 </Link>
                             )}
-                            <button onClick={goToCart} className="relative text-stone-500 hover:text-stone-900 transition-colors duration-200 p-1">
+                            <button data-testid="cart-button" onClick={goToCart} className="relative text-stone-500 hover:text-stone-900 transition-colors duration-200 p-1">
                                 <svg className="w-[18px] h-[18px]" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
                                     <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" strokeLinecap="round" strokeLinejoin="round" />
                                     <path d="M3 6h18M16 10a4 4 0 01-8 0" strokeLinecap="round" />

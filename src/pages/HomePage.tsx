@@ -134,7 +134,7 @@ export default function HomePage() {
 
                         <div className="ml-auto relative">
                             <input
-                                type="text"
+                                type="text" data-testid="search-input"
                                 placeholder="Search..."
                                 value={title}
                                 onChange={(e) => {
@@ -219,14 +219,14 @@ export default function HomePage() {
                             </div>
                         ) : (
                             <>
-                                <div className={`grid ${gridCols[gridSize]} gap-6`}>
+                                <div data-testid="product-grid" className={`grid ${gridCols[gridSize]} gap-6`}>
                                     {finalProducts.map((product) => (
                                         <ProductCard key={product.id} product={product} />
                                     ))}
                                 </div>
 
                                 <div className="flex items-center justify-between border-t border-stone-200 mt-10 pt-6">
-                                    <button
+                                    <button data-testid="prev-page"
                                         onClick={() => setSearchParams((prev) => { prev.set("page", String(Math.max(0, page - 1))); return prev; })}
                                         disabled={page === 0}
                                         className="px-6 py-2 border border-stone-300 text-sm disabled:opacity-50 hover:bg-stone-50 transition"
@@ -234,7 +234,7 @@ export default function HomePage() {
                                         Previous
                                     </button>
                                     <span className="text-sm text-stone-500">Page {page + 1}</span>
-                                    <button
+                                    <button data-testid="next-page"
                                         onClick={() => setSearchParams((prev) => { prev.set("page", String(page + 1)); return prev; })}
                                         disabled={finalProducts.length < limit}
                                         className="px-6 py-2 border border-stone-300 text-sm disabled:opacity-50 hover:bg-stone-50 transition"

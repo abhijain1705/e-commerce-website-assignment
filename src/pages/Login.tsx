@@ -174,14 +174,14 @@ export default function LoginPage() {
 
                             <div className="space-y-4">
                                 <FormField
-                                    label="Email Address"
+                                    label="Email Address" dataTestid="email"
                                     type="email"
                                     value={email}
                                     onChange={setEmail}
                                     placeholder="you@example.com"
                                 />
                                 <div>
-                                    <FormField
+                                    <FormField dataTestid="password"
                                         label="Password"
                                         type={showPassword ? "text" : "password"}
                                         value={password}
@@ -216,13 +216,13 @@ export default function LoginPage() {
                             </div>
 
                             <div className="mt-8">
-                                <PrimaryButton onClick={handleSubmit} loading={submitted} label="Sign In" successLabel="Welcome back!" />
+                                <PrimaryButton dataTestid="login-submit" onClick={handleSubmit} loading={submitted} label="Sign In" successLabel="Welcome back!" />
                             </div>
 
                             <p className="mt-6 text-center text-xs text-stone-400">
                                 Don't have an account?{" "}
                                 <button onClick={() => handleModeSwitch("signup")} className="text-stone-700 font-medium underline underline-offset-2 hover:text-stone-900 transition-colors">
-                                    Create one
+                                    Sign In
                                 </button>
                             </p>
                         </div>
@@ -310,7 +310,7 @@ export default function LoginPage() {
                             <p className="mt-6 text-center text-xs text-stone-400">
                                 Already have an account?{" "}
                                 <button onClick={() => handleModeSwitch("login")} className="text-stone-700 font-medium underline underline-offset-2 hover:text-stone-900 transition-colors">
-                                    Sign in
+                                    Sign Up
                                 </button>
                             </p>
                         </div>
@@ -391,6 +391,7 @@ export default function LoginPage() {
 function FormField({
     label,
     type,
+    dataTestid,
     value,
     onChange,
     placeholder,
@@ -399,6 +400,7 @@ function FormField({
     label: string;
     type: string;
     value: string;
+    dataTestid?: string;
     onChange: (v: string) => void;
     placeholder?: string;
     suffix?: React.ReactNode;
@@ -414,7 +416,7 @@ function FormField({
                     }`}
             >
                 <input
-                    type={type}
+                    type={type} data-testid={dataTestid}
                     value={value}
                     onChange={(e) => onChange(e.target.value)}
                     onFocus={() => setFocused(true)}
@@ -431,16 +433,18 @@ function FormField({
 function PrimaryButton({
     onClick,
     loading,
+    dataTestid,
     label,
     successLabel,
 }: {
     onClick: (e: React.MouseEvent) => void;
     loading: boolean;
+    dataTestid?: string;
     label: string;
     successLabel: string;
 }) {
     return (
-        <button
+        <button data-testid={dataTestid}
             onClick={onClick}
             className={`w-full py-4 text-[11px] tracking-[0.25em] uppercase font-semibold transition-all duration-300 flex items-center justify-center gap-2 ${loading ? "bg-stone-700 text-white" : "bg-stone-900 text-white hover:bg-stone-700"
                 }`}

@@ -72,7 +72,7 @@ export default function ProductDetailPage() {
     }
 
     return (
-        <div className="min-h-screen bg-white">
+        <div data-testid="product-detail" className="min-h-screen bg-white">
             <div className="max-w-screen-xl mx-auto px-6 lg:px-10 pt-5 pb-2">
                 <nav className="flex items-center gap-2 text-[10px] tracking-[0.15em] uppercase text-stone-400">
                     <Link to="/" className="hover:text-stone-600 transition-colors">Home</Link>
@@ -140,8 +140,8 @@ export default function ProductDetailPage() {
                             {product.title}
                         </h1>
 
-                        <div className="flex items-center gap-3 mb-6">
-                            <span className="text-2xl font-bold text-stone-900">₹{product.price.toLocaleString()}</span>
+                        <div data-testid="product-detail" className="flex items-center gap-3 mb-6">
+                            <span data-testid="product-price" className="text-2xl font-bold text-stone-900">₹{product.price.toLocaleString()}</span>
                         </div>
                         <div className="flex gap-3 mb-4">
                             <button
