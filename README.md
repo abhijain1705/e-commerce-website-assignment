@@ -37,6 +37,13 @@ This is ecommerce website i am building as part of assignment.
 2. npm install
 3. npm run dev
 
+## Testing
+
+we have used playwright for basic end-to-end page testing.
+
+1. npx playwright test
+2. npx playwright show-report
+
 ### Code Structure
 
 src/
