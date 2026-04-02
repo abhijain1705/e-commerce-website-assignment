@@ -13,7 +13,7 @@ const CartPage = () => {
         4: "grid-cols-2 md:grid-cols-3 lg:grid-cols-4",
     };
 
-    const { cartItems, cartCount } = useCart();
+    const { cartItems, cartCount, cartTotal } = useCart();
     const navigate = useNavigate();
 
     return (
@@ -21,6 +21,7 @@ const CartPage = () => {
             <div className='flex flex-wrap w-full justify-between items-center'>
                 <div className='flex items-center gap-3'>
                     <h3>My Cart ({cartCount})</h3>
+                    <p>₹{cartTotal}</p>
                     <button onClick={() => navigate("/checkout")} className='bg-[#000] text-[#fff] py-2 px-3'>Checkout</button>
                 </div>
                 <div className="flex items-center gap-3 m-6">

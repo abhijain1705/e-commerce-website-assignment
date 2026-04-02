@@ -46,12 +46,7 @@ export default function Navbar() {
                             </a>
                         </div>
                         <div className="flex items-center gap-4 lg:gap-5 ml-auto lg:ml-0">
-                            <button className="text-stone-500 hover:text-stone-900 transition-colors duration-200 p-1">
-                                <svg className="w-[18px] h-[18px]" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
-                                    <circle cx="11" cy="11" r="7.5" />
-                                    <path d="M17 17l3.5 3.5" strokeLinecap="round" />
-                                </svg>
-                            </button>
+
 
                             {user ? (
                                 <div className="hidden lg:flex items-center gap-3">

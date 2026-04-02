@@ -101,34 +101,36 @@ export default function HomePage() {
 
             <section className="border-y border-stone-100">
                 <div className="max-w-screen-xl mx-auto px-6 py-5">
-                    <div className="flex gap-6 overflow-x-auto items-center">
-                        <button
-                            onClick={() => {
-                                setSearchParams((prev) => {
-                                    prev.delete("categorySlug");
-                                    prev.set("page", "0");
-                                    return prev;
-                                });
-                            }}
-                            className={`text-[11px] uppercase ${!categorySlug ? "font-bold text-stone-900" : "text-stone-500"}`}
-                        >
-                            All
-                        </button>
-                        {categories.slice(0, 8).map((cat) => (
+                    <div className="flex items-center gap-2 flex-wrap">
+                        <div className="flex gap-6 overflow-x-auto items-center">
                             <button
-                                key={cat.id}
                                 onClick={() => {
                                     setSearchParams((prev) => {
-                                        prev.set("categorySlug", String(cat.id));
+                                        prev.delete("categorySlug");
                                         prev.set("page", "0");
                                         return prev;
                                     });
                                 }}
-                                className={`text-[11px] uppercase whitespace-nowrap ${categorySlug === String(cat.id) ? "font-bold text-stone-900" : "text-stone-500"}`}
+                                className={`text-[11px] uppercase ${!categorySlug ? "font-bold text-stone-900" : "text-stone-500"}`}
                             >
-                                {cat.name}
+                                All
                             </button>
-                        ))}
+                            {categories.slice(0, 8).map((cat) => (
+                                <button
+                                    key={cat.id}
+                                    onClick={() => {
+                                        setSearchParams((prev) => {
+                                            prev.set("categorySlug", String(cat.id));
+                                            prev.set("page", "0");
+                                            return prev;
+                                        });
+                                    }}
+                                    className={`text-[11px] uppercase whitespace-nowrap ${categorySlug === String(cat.id) ? "font-bold text-stone-900" : "text-stone-500"}`}
+                                >
+                                    {cat.name}
+                                </button>
+                            ))}
+                        </div>
 
                         <div className="ml-auto relative">
                             <input

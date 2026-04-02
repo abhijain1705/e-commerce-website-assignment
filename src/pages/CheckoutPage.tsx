@@ -6,6 +6,7 @@ const CheckoutPage = () => {
 
     const [step, setStep] = useState<"address" | "review" | "success">("address");
     const [orders, setOrders] = useState<any[]>([]);
+    const { clearCart } = useCart();
     const [address, setAddress] = useState({
         name: "",
         phone: "",
@@ -35,6 +36,7 @@ const CheckoutPage = () => {
             date: new Date().toISOString(),
         };
 
+        clearCart();
         localStorage.setItem("orders", JSON.stringify([newOrder, ...existing]));
     };
 
