@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import ProductCard from '../components/ProductCard';
 import { GridSize } from './HomePage';
 import { useCart } from '../cart/CartContext';
@@ -15,6 +15,13 @@ const CartPage = () => {
 
     const { cartItems, cartCount, cartTotal } = useCart();
     const navigate = useNavigate();
+
+    const [orders, setOrders] = useState<any[]>([]);
+
+    useEffect(() => {
+        const saved = JSON.parse(localStorage.getItem("orders") || "[]");
+        setOrders(saved);
+    }, []);
 
     return (
         <div className='flex flex-col p-6'>
@@ -81,6 +88,35 @@ const CartPage = () => {
                     <ProductCard key={product.id} insideCartPage={true} product={product} />
                 ))}
             </div>}
+
+            <div className="mt-16">
+                <h2 className="text-xl font-semibold mb-4">Previous Orders</h2>
+
+                {orders.length === 0 && (
+                    <p className="text-gray-400 text-sm">No past orders</p>
+                )}
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {orders.map((order) => (
+                        <div key={order.id} className="border p-4">
+                            <p className="text-xs text-gray-400 mb-2">
+                                {new Date(order.date).toLocaleString()}
+                            </p>
+
+                            {order.items.map((item: any) => (
+                                <div key={item.id} className="flex gap-3 mb-2">
+                                    <img src={item.images[0]} className="w-10 h-10" />
+                                    <p className="text-xs">{item.title}</p>
+                                </div>
+                            ))}
+
+                            <p className="text-sm font-semibold mt-2">
+                                Total: ₹{order.total}
+                            </p>
+                        </div>
+                    ))}
+                </div>
+            </div>
         </div>
     )
 }
